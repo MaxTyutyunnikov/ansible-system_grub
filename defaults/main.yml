@@ -1,7 +1,9 @@
 ---
 grub_timeout: 5
 grub_recordfail_timeout: "{{ grub_timeout }}"
+grub_reboot: false
 
-# grub_options:
+grub_cmdline: ""
+grub_add_cmdline: []
 #   - option: cgroup_enable
 #     value: memory

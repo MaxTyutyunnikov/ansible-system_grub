@@ -1,6 +1,4 @@
 ---
-# tasks file for grub
-
 - name: Import assert.yml
   ansible.builtin.import_tasks: assert.yml
   run_once: yes
@@ -11,7 +9,7 @@
     name: "{{ grub_packages }}"
     state: present
 
-- name: Set GRUB_TIMEOUT
+- name: "Set GRUB_TIMEOUT"
   ansible.builtin.lineinfile:
     path: /etc/default/grub
     line: GRUB_TIMEOUT={{ grub_timeout }}
@@ -20,7 +18,7 @@
   notify:
     - Update grub
 
-- name: Set GRUB_RECORDFAIL_TIMEOUT
+- name: "Set GRUB_RECORDFAIL_TIMEOUT"
   ansible.builtin.lineinfile:
     path: /etc/default/grub
     line: GRUB_RECORDFAIL_TIMEOUT={{ grub_recordfail_timeout }}
@@ -29,21 +27,39 @@
   notify:
     - Update grub
 
-- name: Add options to GRUB_CMDLINE_LINUX
+- name: "Replace all options to GRUB_CMDLINE_LINUX"
+  ansible.builtin.replace:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX='
+    replace: 'GRUB_CMDLINE_LINUX="{{ grub_cmdline }}"'
+    validate: /bin/sh %s
+    mode: "0664"
+  notify:
+    - Update grub
+  when:
+    - grub_cmdline is defined
+    - grub_cmdline | length > 0
+
+- name: "Add options to GRUB_CMDLINE_LINUX"
   ansible.builtin.replace:
     path: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX="((:?(?!{{ item.option }}={{ item.value }}).)*?)"$'
     replace: 'GRUB_CMDLINE_LINUX="\1 {{ item.option }}={{ item.value }}"'
     validate: /bin/sh %s
     mode: "0664"
-  loop: "{{ grub_options }}"
+  loop: "{{ grub_add_cmdline }}"
   loop_control:
     label: "{{ item.option }}"
   notify:
     - Update grub
   when:
-    - grub_options is defined
-    - grub_options | length > 0
+    - grub_add_cmdline is defined
+    - grub_add_cmdline | length > 0
 
-- name: Flush handlers
+- name: "Reboot"
+  ansible.builtin.reboot:
+  when:
+    - grub_reboot|bool
+
+- name: "Flush handlers"
   ansible.builtin.meta: flush_handlers
