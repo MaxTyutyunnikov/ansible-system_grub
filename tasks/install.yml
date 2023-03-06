@@ -61,7 +61,7 @@
     path: "/etc/grub.d/{{ item.file }}"
     block: "{{ item.value }}"
     create: true
-    mode: "0664"
+    mode: "0755"
   #no_log: true
   notify:
     - Update grub
@@ -85,6 +85,14 @@
     - grub_add_filed is defined
     - grub_add_filed | length > 0
     - item.regex is defined
+
+- name: "Securise Grub bootloader"
+  ansible.builtin.file:
+    path: "/boot/grub/grub.cfg"
+    owner: root
+    group: root
+    mode: '0600'
+  when: grub_sec_bootloader|bool
 
 - name: "Reboot"
   ansible.builtin.reboot:

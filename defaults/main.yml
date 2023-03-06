@@ -17,3 +17,4 @@ grub_reboot: false
 #  - file: 10_linux
 #    regex: "CLASS="
 #    value: "--unrestricted"
+grub_sec_bootloader: false
