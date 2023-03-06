@@ -1,7 +1,7 @@
 ---
 - name: Import assert.yml
   ansible.builtin.import_tasks: assert.yml
-  run_once: yes
+  run_once: true
   delegate_to: localhost
 
 - name: Install required packages
@@ -13,7 +13,7 @@
   ansible.builtin.lineinfile:
     path: /etc/default/grub
     line: GRUB_TIMEOUT={{ grub_timeout }}
-    create: yes
+    create: true
     mode: "0664"
   notify:
     - Update grub
@@ -22,7 +22,7 @@
   ansible.builtin.lineinfile:
     path: /etc/default/grub
     line: GRUB_RECORDFAIL_TIMEOUT={{ grub_recordfail_timeout }}
-    create: yes
+    create: true
     mode: "0664"
   notify:
     - Update grub
@@ -55,6 +55,36 @@
   when:
     - grub_add_cmdline is defined
     - grub_add_cmdline | length > 0
+
+- name: "Add content on grud.d config files"
+  ansible.builtin.blockinfile:
+    path: "/etc/grub.d/{{ item.file }}"
+    block: "{{ item.value }}"
+    create: true
+    mode: "0664"
+  #no_log: true
+  notify:
+    - Update grub
+  with_items:
+    - "{{ grub_add_filed }}"
+  when:
+    - grub_add_filed is defined
+    - grub_add_filed | length > 0
+    - item.regex is not defined
+
+- name: "Change content on grud.d config files"
+  ansible.builtin.replace:
+    path: "/etc/grub.d/{{ item.file }}"
+    regexp: '^{{ item.regex }}"((:?(?!{{ item.value }}).)*?)"$'
+    replace: '{{ item.regex }}"\1 {{ item.value }}"'
+  notify:
+    - Update grub
+  with_items:
+    - "{{ grub_add_filed }}"
+  when:
+    - grub_add_filed is defined
+    - grub_add_filed | length > 0
+    - item.regex is defined
 
 - name: "Reboot"
   ansible.builtin.reboot:
