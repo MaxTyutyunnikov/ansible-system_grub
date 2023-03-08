@@ -1,13 +1,16 @@
 ---
-grub_timeout: 5
-grub_recordfail_timeout: "{{ grub_timeout }}"
-grub_reboot: false
+#grub_timeout: 5
+#grub_recordfail_timeout: "{{ grub_timeout }}"
 
+## Replace commandline options
 #grub_cmdline: ""
+
+## Add an extra argument on commandline
 #grub_add_cmdline: []
 #   - option: cgroup_enable
 #     value: memory
 
+## Add or edit /etc/grub.d/ files
 #grub_add_filed:
 #  #When no regex, add content to file or create a new file is not exist
 #  - file: 01_passwd
@@ -17,4 +20,9 @@ grub_reboot: false
 #  - file: 10_linux
 #    regex: "CLASS="
 #    value: "--unrestricted"
+
+##Change mode to 600 for /boot/grub/grub.cfg
 grub_sec_bootloader: false
+
+#reboot after updating grub
+grub_reboot: false

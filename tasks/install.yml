@@ -1,10 +1,10 @@
 ---
-- name: Import assert.yml
+- name: "Import assert.yml"
   ansible.builtin.import_tasks: assert.yml
   run_once: true
   delegate_to: localhost
 
-- name: Install required packages
+- name: "Install required packages"
   ansible.builtin.package:
     name: "{{ grub_packages }}"
     state: present
@@ -15,6 +15,8 @@
     line: GRUB_TIMEOUT={{ grub_timeout }}
     create: true
     mode: "0664"
+  when:
+    - grub_timeout is defined
   notify:
     - Update grub
 
@@ -24,21 +26,24 @@
     line: GRUB_RECORDFAIL_TIMEOUT={{ grub_recordfail_timeout }}
     create: true
     mode: "0664"
+  when:
+    - grub_timeout is defined
+    - grub_recordfail_timeout is defined
   notify:
     - Update grub
 
 - name: "Replace all options to GRUB_CMDLINE_LINUX"
-  ansible.builtin.replace:
+  ansible.builtin.lineinfile:
     path: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX='
-    replace: 'GRUB_CMDLINE_LINUX="{{ grub_cmdline }}"'
+    line: 'GRUB_CMDLINE_LINUX="{{ grub_cmdline }}"'
     validate: /bin/sh %s
     mode: "0664"
-  notify:
-    - Update grub
   when:
     - grub_cmdline is defined
     - grub_cmdline | length > 0
+  notify:
+    - Update grub
 
 - name: "Add options to GRUB_CMDLINE_LINUX"
   ansible.builtin.replace:
@@ -50,11 +55,11 @@
   loop: "{{ grub_add_cmdline }}"
   loop_control:
     label: "{{ item.option }}"
-  notify:
-    - Update grub
   when:
     - grub_add_cmdline is defined
     - grub_add_cmdline | length > 0
+  notify:
+    - Update grub
 
 - name: "Add content on grud.d config files"
   ansible.builtin.blockinfile:
@@ -62,15 +67,14 @@
     block: "{{ item.value }}"
     create: true
     mode: "0755"
-  #no_log: true
-  notify:
-    - Update grub
   with_items:
     - "{{ grub_add_filed }}"
   when:
     - grub_add_filed is defined
     - grub_add_filed | length > 0
     - item.regex is not defined
+  notify:
+    - Update grub
 
 - name: "Change content on grud.d config files"
   ansible.builtin.replace:
@@ -93,11 +97,6 @@
     group: root
     mode: '0600'
   when: grub_sec_bootloader|bool
-
-- name: "Reboot"
-  ansible.builtin.reboot:
-  when:
-    - grub_reboot|bool
 
 - name: "Flush handlers"
   ansible.builtin.meta: flush_handlers

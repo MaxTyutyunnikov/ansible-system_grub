@@ -3,36 +3,38 @@
 - name: Test if grub_timeout is set correctly
   ansible.builtin.assert:
     that:
-      - grub_timeout is defined
       - grub_timeout is number
       - grub_timeout >= 0
     quiet: true
+  when:
+    - grub_timeout is defined
 
 - name: Test if grub_recordfail_timeout is set correctly
   ansible.builtin.assert:
     that:
-      - grub_recordfail_timeout is defined
       - grub_recordfail_timeout is number
       - grub_recordfail_timeout >= 0
     quiet: true
+  when:
+    - grub_ecordfail_timeout is defined
 
-- name: Test if grub_options is set correctly
+- name: Test if grub_add_cmdline is set correctly
   ansible.builtin.assert:
     that:
-      - grub_options is iterable
+      - grub_add_cmdline is iterable
     quiet: true
   when:
-    - grub_options is defined
+    - grub_add_cmdline is defined
 
-- name: Test if item in grub_options is set correctly
+- name: Test if item in grub_add_cmdline is set correctly
   ansible.builtin.assert:
     that:
       - item.option is defined
       - item.option is string
       - item.value is defined
     quiet: true
-  loop: "{{ grub_options }}"
+  loop: "{{ grub_add_cmdline }}"
   loop_control:
     label: "{{ item.option }}"
   when:
-    - grub_options is defined
+    - grub_add_cmdline is defined
