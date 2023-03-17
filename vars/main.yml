@@ -15,3 +15,11 @@ _grub_update_grub_command:
   Debian: update-grub
 
 grub_update_grub_command: "{{ _grub_update_grub_command[ansible_os_family] | default(_grub_update_grub_command['default']) }}"
+
+#_grub_validation:
+#  default:
+#    - grub-script-check
+#  OracleLinux:
+#    - grub2-script-check
+#  Debian:
+#    - grub-script-check

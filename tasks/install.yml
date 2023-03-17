@@ -1,47 +1,45 @@
 ---
-- name: "Import assert.yml"
-  ansible.builtin.import_tasks: assert.yml
-  run_once: true
-  delegate_to: localhost
-
 - name: "Install required packages"
   ansible.builtin.package:
     name: "{{ grub_packages }}"
     state: present
 
-- name: "Set GRUB_TIMEOUT"
+#- name: "Check if /etc/default/grub exist"
+#  ansible.builtin.stat:
+#    path: /etc/default/grub
+#  register: grub_default
+#
+#- name: "Create /etc/default/grub"
+#  ansible.builtin.file:
+#    path: /etc/default/grub
+#    state: touch
+#    owner: root
+#    group: root
+#    mode: 0644
+#  when:
+#    - grub_default.stat.exists is defined
+#    - not grub_default.stat.exists
+
+- name: "Remove all comments and empty lines"
   ansible.builtin.lineinfile:
     path: /etc/default/grub
-    line: GRUB_TIMEOUT={{ grub_timeout }}
+    regexp: "{{ item }}"
+    state: absent
+  loop:
+    - '^#'
+    - '^$'
+
+- name: "Set grub options"
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: "^{{ item.name }}="
+    line: "{{ item.name }}={{ item.value }}"
+    #validate: "{{ _grub_validation[ansible_distribution] | default(_grub_validation['default']) }} /etc/default/grub"
     create: true
     mode: "0664"
+  with_items: "{{ grub_options }}"
   when:
-    - grub_timeout is defined
-  notify:
-    - Update grub
-
-- name: "Set GRUB_RECORDFAIL_TIMEOUT"
-  ansible.builtin.lineinfile:
-    path: /etc/default/grub
-    line: GRUB_RECORDFAIL_TIMEOUT={{ grub_recordfail_timeout }}
-    create: true
-    mode: "0664"
-  when:
-    - grub_timeout is defined
-    - grub_recordfail_timeout is defined
-  notify:
-    - Update grub
-
-- name: "Replace all options to GRUB_CMDLINE_LINUX"
-  ansible.builtin.lineinfile:
-    path: /etc/default/grub
-    regexp: '^GRUB_CMDLINE_LINUX='
-    line: 'GRUB_CMDLINE_LINUX="{{ grub_cmdline }}"'
-    validate: /bin/sh %s
-    mode: "0664"
-  when:
-    - grub_cmdline is defined
-    - grub_cmdline | length > 0
+    - grub_options is defined
   notify:
     - Update grub
 

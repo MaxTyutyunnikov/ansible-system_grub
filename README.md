@@ -30,9 +30,13 @@ With default variables, this role dont change anything on the system. You need t
           roles:
             - role: ansible-system_grub
           vars: 
-            grub_timeout: 5
-            grub_recordfail_timeout: "{{ grub_timeout }}"
-            grub_cmdline: "ipv6.disable=1 apparmor=1 security=apparmor"
+            grub_options:
+              - name: GRUB_DISTRIBUTOR
+                value: "{{ ansible_distribution }}"
+              - name: GRUB_TIMEOUT
+                value: 4
+              - name: GRUB_CMDLINE_LINUX
+                value: "ipv6.disable=1 apparmor=1 security=apparmor"
             grub_add_filed:
               - file: 01_passwd
                 value: |

@@ -1,9 +1,9 @@
 ---
-#grub_timeout: 5
-#grub_recordfail_timeout: "{{ grub_timeout }}"
-
-## Replace commandline options
-#grub_cmdline: ""
+#grub_options:
+#  - name: GRUB_TIMEOUT
+#    value: 2
+#  - name: GRUB_RECORDFAIL_TIMEOUT
+#    value: 2
 
 ## Add an extra argument on commandline
 #grub_add_cmdline: []
