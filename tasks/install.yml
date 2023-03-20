@@ -22,7 +22,7 @@
 
 - name: "Remove all comments and empty lines"
   ansible.builtin.lineinfile:
-    path: /etc/default/grub
+    path: "{{ grub_default_path }}"
     regexp: "{{ item }}"
     state: absent
   loop:
@@ -31,7 +31,7 @@
 
 - name: "Set grub options"
   ansible.builtin.lineinfile:
-    path: /etc/default/grub
+    path: "{{ grub_default_path }}"
     regexp: "^{{ item.name }}="
     line: "{{ item.name }}={{ item.value }}"
     #validate: "{{ _grub_validation[ansible_distribution] | default(_grub_validation['default']) }} /etc/default/grub"
@@ -45,7 +45,7 @@
 
 - name: "Add options to GRUB_CMDLINE_LINUX"
   ansible.builtin.replace:
-    path: /etc/default/grub
+    path: "{{ grub_default_path }}"
     regexp: '^GRUB_CMDLINE_LINUX="((:?(?!{{ item.option }}={{ item.value }}).)*?)"$'
     replace: 'GRUB_CMDLINE_LINUX="\1 {{ item.option }}={{ item.value }}"'
     validate: /bin/sh %s
@@ -90,7 +90,7 @@
 
 - name: "Securise Grub bootloader"
   ansible.builtin.file:
-    path: "/boot/grub/grub.cfg"
+    path: "{{ grub_boot_path }}"
     owner: root
     group: root
     mode: '0600'

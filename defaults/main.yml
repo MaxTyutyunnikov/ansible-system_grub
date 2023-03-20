@@ -1,4 +1,5 @@
 ---
+grub_default_path: "/etc/default/grub"
 #grub_options:
 #  - name: GRUB_TIMEOUT
 #    value: 2
@@ -23,6 +24,7 @@
 
 ##Change mode to 600 for /boot/grub/grub.cfg
 grub_sec_bootloader: false
+grub_boot_path: "/boot/grub/grub.cfg"
 
 #reboot after updating grub
 grub_reboot: false
