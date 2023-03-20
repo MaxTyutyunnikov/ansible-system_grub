@@ -33,7 +33,7 @@
   ansible.builtin.lineinfile:
     path: "{{ grub_default_path }}"
     regexp: "^{{ item.name }}="
-    line: "{{ item.name }}={{ item.value }}"
+    line: "{{ item.name }}=\"{{ item.value }}\""
     #validate: "{{ _grub_validation[ansible_distribution] | default(_grub_validation['default']) }} /etc/default/grub"
     create: true
     mode: "0664"
