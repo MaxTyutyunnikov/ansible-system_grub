@@ -4,8 +4,10 @@
   become: true
   any_errors_fatal: true
 
-  roles:
-    - role: ansible-system_grub
+  tasks:
+    - name: Include role
+      ansible.builtin.include_role:
+        name: ansible-system_grub
 
   vars:
     grub_timeout: 5
