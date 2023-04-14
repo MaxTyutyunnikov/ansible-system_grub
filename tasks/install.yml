@@ -77,8 +77,10 @@
 - name: "Change content on grud.d config files"
   ansible.builtin.replace:
     path: "/etc/grub.d/{{ item.file }}"
-    regexp: '^{{ item.regex }}"((:?(?!{{ item.value }}).)*?)"$'
-    replace: '{{ item.regex }}"\1 {{ item.value }}"'
+#    regexp: '^{{ item.regex }}"((:?(?!{{ item.value }}).)*?)"$'
+#    replace: '{{ item.regex }}"\1 {{ item.value }}"'
+    regexp: '^{{ item.regex }}".*"'
+    replace: '{{ item.regex }}"{{ item.value }}"'
   notify:
     - Update grub
   with_items:
